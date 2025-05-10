@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import Splitter from 'primevue/splitter';
 import SplitterPanel from 'primevue/splitterpanel';
 import { Form } from '@primevue/forms';
@@ -9,6 +9,8 @@ import InputNumber from 'primevue/inputnumber';
 import DatePicker from 'primevue/datepicker';
 import AutoComplete from 'primevue/autocomplete';
 import Button from "primevue/button";
+import Chart from 'primevue/chart';
+
 
 const people = ref([
     'jiri.jelinek@datasentics.com',
@@ -32,10 +34,71 @@ const searchPeople = (event) => {
         person => person.toLowerCase().includes(query)
     );
 }
+
+onMounted(() => {
+    chartData.value = setChartData();
+    chartOptions.value = setChartOptions();
+});
+
+const chartData = ref();
+const chartOptions = ref();
+
+const months = ['2024-06', '2024-07', '2024-08', '2024-09'];
+const remainingBudget = [51408, 32500, 27020, 16200]
+
+const setChartData = () => {
+    return {
+        labels: months,
+        datasets: [
+            {
+                label: 'Remaining budget',
+                data: remainingBudget,
+                backgroundColor: ['rgba(249, 115, 22, 0.2)', 'rgba(6, 182, 212, 0.2)', 'rgb(107, 114, 128, 0.2)', 'rgba(139, 92, 246 0.2)'],
+                borderColor: ['rgb(249, 115, 22)', 'rgb(6, 182, 212)', 'rgb(107, 114, 128)', 'rgb(139, 92, 246)'],
+                borderWidth: 1
+            }
+        ]
+    };
+};
+const setChartOptions = () => {
+    const documentStyle = getComputedStyle(document.documentElement);
+    const textColor = documentStyle.getPropertyValue('--p-text-color');
+    const textColorSecondary = documentStyle.getPropertyValue('--p-text-muted-color');
+    const surfaceBorder = documentStyle.getPropertyValue('--p-content-border-color');
+
+    return {
+        plugins: {
+            legend: {
+                labels: {
+                    color: textColor
+                }
+            }
+        },
+        scales: {
+            x: {
+                ticks: {
+                    color: textColorSecondary
+                },
+                grid: {
+                    color: surfaceBorder
+                }
+            },
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    color: textColorSecondary
+                },
+                grid: {
+                    color: surfaceBorder
+                }
+            }
+        }
+    };
+}
 </script>
 
 <template>
-    <Splitter style="height: 600px" layout="vertical">
+    <Splitter style="height: 800px" layout="vertical">
         <SplitterPanel class="flex items-center justify-center">
             <Splitter layout="horizontal">
                 <SplitterPanel class="flex items-center justify-center" :size="50" :minSize="10">
@@ -81,6 +144,10 @@ const searchPeople = (event) => {
                 <SplitterPanel class="flex items-center justify-center" :size="30"> Panel 1.3 </SplitterPanel>
             </Splitter>
         </SplitterPanel>
-        <SplitterPanel class="flex items-center justify-center"> Panel 2 </SplitterPanel>
+        <SplitterPanel class="flex items-center justify-center">
+            <div class="card">
+                <Chart type="bar" :data="chartData" :options="chartOptions" />
+            </div>            
+        </SplitterPanel>
     </Splitter>
 </template>
