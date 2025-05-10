@@ -15,6 +15,8 @@ const people = ref([
     'filip.trojan@datasentics.com',
     'david.vopelka@datasentics.com',
     'tomas.bouma@datasentics.com',
+    'ondrej.kral@datasentics.com',
+    'ondrej.pleticha@datasentics.com',
 ])
 const budget = ref({
     name: 'George',
@@ -33,10 +35,10 @@ const searchPeople = (event) => {
 </script>
 
 <template>
-    <Splitter style="height: 1000px" layout="vertical">
+    <Splitter style="height: 600px" layout="vertical">
         <SplitterPanel class="flex items-center justify-center">
             <Splitter layout="horizontal">
-                <SplitterPanel class="flex items-center justify-center" :size="30" :minSize="10">
+                <SplitterPanel class="flex items-center justify-center" :size="50" :minSize="10">
                     <Form v-slot="$form" :resolver="resolver" :initialValues="initialValues" @submit="onFormSubmit" class="flex flex-col gap-4 w-full sm:w-56">
                         <div class="flex flex-col gap-1">
                             <IftaLabel>
@@ -66,9 +68,9 @@ const searchPeople = (event) => {
                             </IftaLabel>
                             <Message v-if="$form.date?.invalid" severity="error" size="small" variant="simple">{{ $form.date.error?.message }}</Message>
                         </div>
-                        <div class="card flex justify-center">
+                        <div class="flex flex-col gap-1">
                             <IftaLabel>
-                                <AutoComplete v-model="budget.owner" inputId="ac" :suggestions="filteredPeople" @complete="searchPeople" variant="filled" />
+                                <AutoComplete v-model="budget.owner" inputId="ac" dropdown :suggestions="filteredPeople" @complete="searchPeople" variant="filled" />
                                 <label for="ac">Owner</label>
                             </IftaLabel>
                         </div>
