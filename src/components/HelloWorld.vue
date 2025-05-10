@@ -28,7 +28,7 @@ const products = [
 </script>
 
 <template>
-  <h1>{{ msg }}</h1>
+  <h1>Hello {{ msg }}</h1>
 
   <div class="card">
     <Button type="button" @click="count++">count is {{ count }}</Button>

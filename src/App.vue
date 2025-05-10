@@ -2,7 +2,6 @@
 import Button from "primevue/button";
 import Avatar from "primevue/avatar";
 import Toolbar from 'primevue/toolbar';
-import HelloWorld from './components/HelloWorld.vue'
 </script>
 
 <template>
@@ -10,9 +9,9 @@ import HelloWorld from './components/HelloWorld.vue'
     <Toolbar style="border-radius: 2rem; padding: 1rem 1rem 1rem 1.5rem">
     <template #start>
         <div class="flex items-center gap-2">
-            <Button label="Hello" text plain />
-            <Button label="Budgets" text plain />
-            <Button label="Projects" text plain />
+            <router-link to="/hello"><Button label="Hello" text plain /></router-link>
+            <router-link to="/budgets"><Button label="Budgets" text plain /></router-link>
+            <router-link to="/projects"><Button label="Projects" text plain /></router-link>
             <Button label="POs" text plain />
             <Button label="Invoices" text plain />
             <Button label="Customers" text plain />
@@ -28,15 +27,7 @@ import HelloWorld from './components/HelloWorld.vue'
     </template>
     </Toolbar>
   </div>
-  <div>
-    <a href="https://vite.dev" target="_blank">
-      <img src="/vite.svg" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://vuejs.org/" target="_blank">
-      <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-    </a>
-  </div>
-  <HelloWorld msg="Ahoj Vite + Vue" />
+  <main><router-view></router-view></main>
 </template>
 
 <style scoped>
