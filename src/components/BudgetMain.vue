@@ -12,7 +12,10 @@ import AutoComplete from 'primevue/autocomplete';
 import Dropdown from 'primevue/dropdown';
 import Button from "primevue/button";
 import Chart from 'primevue/chart';
+import { useToast } from 'primevue/usetoast';
+import Toast from 'primevue/toast';
 
+const toast = useToast();
 
 const manual_users = [
     'jiri.jelinek@datasentics.com',
@@ -125,6 +128,76 @@ const setChartOptions = () => {
         }
     };
 }
+
+// Form state
+const submitted = ref(false);
+const formLoading = ref(false);
+const apiError = ref('');
+
+// Form validation
+const isFormValid = () => {
+  return (
+    budget.value.name &&
+    budget.value.amount &&
+    budget.value.start &&
+    budget.value.end &&
+    budget.value.owner
+  );
+};
+
+// Handle form submission
+const submitForm = async () => {
+  submitted.value = true;
+  apiError.value = '';
+  
+  if (!isFormValid()) {
+    toast.add({
+      severity: 'error',
+      summary: 'Validation Error',
+      detail: 'Please check the form for errors',
+      life: 3000
+    });
+    return;
+  }
+  
+  formLoading.value = true;
+  
+  try {
+    // Replace with your actual API endpoint
+    const response = await axios.post('https://jsonplaceholder.typicode.com/users', {
+      name: budget.value.name,
+      amount: budget.value.amount,
+      start: budget.value.start,
+      end: budget.value.end,
+      owner: budget.value.owner
+    });
+    
+    console.log('Form submitted:', response.data);
+    
+    // Show success message
+    toast.add({
+      severity: 'success',
+      summary: 'Registration Successful',
+      detail: 'Your budget has been created',
+      life: 3000
+    });
+    
+    submitted.value = false;
+    
+  } catch (error) {
+    console.error('Submission error:', error);
+    apiError.value = error.response?.data?.message || 'An error occurred during submission. Please try again.';
+    
+    toast.add({
+      severity: 'error',
+      summary: 'Submission Error',
+      detail: 'Failed to submit the form',
+      life: 5000
+    });
+  } finally {
+    formLoading.value = false;
+  }
+};
 </script>
 
 <template>
@@ -132,7 +205,12 @@ const setChartOptions = () => {
         <SplitterPanel class="flex items-center justify-center">
             <Splitter layout="horizontal">
                 <SplitterPanel class="flex items-center justify-center" :size="50" :minSize="10">
-                    <Form v-slot="$form" :resolver="resolver" :initialValues="initialValues" @submit="onFormSubmit" class="flex flex-col gap-4 w-full sm:w-56">
+                    <Form 
+                        v-slot="$form" 
+                        :resolver="resolver" 
+                        :initialValues="initialValues" 
+                        @submit="submitForm" 
+                        class="flex flex-col gap-4 w-full sm:w-56">
                         <div class="flex flex-col gap-1">
                             <IftaLabel>
                                 <label for="name">name</label>
@@ -185,6 +263,7 @@ const setChartOptions = () => {
                             <p>Selected email: {{ selectedEmail }}</p>
                         </div>
                     </Form>
+                    <Toast />
                 </SplitterPanel>
                 <SplitterPanel class="flex items-center justify-center" :size="30"> Panel 1.2 </SplitterPanel>
                 <SplitterPanel class="flex items-center justify-center" :size="30"> Panel 1.3 </SplitterPanel>

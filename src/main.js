@@ -4,6 +4,7 @@ import './style.css'
 import App from './App.vue'
 import PrimeVue from 'primevue/config';
 import Aura from '@primeuix/themes/aura';
+import ToastService from 'primevue/toastservice';
 import HelloWorld from './components/HelloWorld.vue'
 import Budgets from './components/Budgets.vue'
 import Projects from './components/Projects.vue'
@@ -27,4 +28,5 @@ app.use(PrimeVue, {
         preset: Aura
     }
 });
+app.use(ToastService);
 app.mount('#app');
