@@ -1,4 +1,5 @@
 <script setup>
+import axios from 'axios';
 import { ref, onMounted } from "vue";
 import Splitter from 'primevue/splitter';
 import SplitterPanel from 'primevue/splitterpanel';
@@ -8,18 +9,20 @@ import InputText from 'primevue/inputtext';
 import InputNumber from 'primevue/inputnumber';
 import DatePicker from 'primevue/datepicker';
 import AutoComplete from 'primevue/autocomplete';
+import Dropdown from 'primevue/dropdown';
 import Button from "primevue/button";
 import Chart from 'primevue/chart';
 
 
-const people = ref([
+const manual_users = [
     'jiri.jelinek@datasentics.com',
     'filip.trojan@datasentics.com',
     'david.vopelka@datasentics.com',
     'tomas.bouma@datasentics.com',
     'ondrej.kral@datasentics.com',
     'ondrej.pleticha@datasentics.com',
-])
+];
+const people = ref(manual_users)
 const budget = ref({
     name: 'George',
     amount: 51408,
@@ -35,7 +38,34 @@ const searchPeople = (event) => {
     );
 }
 
+// State variables
+const emails = ref([]);
+const selectedEmail = ref(null);
+const loading = ref(false);
+const error = ref(null);
+
+// fetch user data from API
+const fetchUsers = async () => {
+    loading.value = true;
+    error.value = null;
+    try {
+        // documentation: https://fakerapi.it/
+        const response = await axios.get('https://fakerapi.it/api/v2/users?_quantity=10'); 
+        // Extract email data and map to format expected by PrimeVue Dropdown
+        emails.value = response.data.data.map(user => ({
+            email: user.email,
+            id: user.id
+        }));
+        loading.value = false;
+    } catch (err) {
+        console.error('Error fetching user data:', err);
+        error.value = 'Failed to load user emails. Please try again later.';
+        loading.value = false;
+    }
+};
+
 onMounted(() => {
+    fetchUsers();
     chartData.value = setChartData();
     chartOptions.value = setChartOptions();
 });
@@ -137,7 +167,23 @@ const setChartOptions = () => {
                                 <label for="ac">Owner</label>
                             </IftaLabel>
                         </div>
+                        <div class="flex flex-col gap-1">
+                            <IftaLabel>
+                                <Dropdown 
+                                    id="email-select" 
+                                    v-model="selectedEmail"
+                                    :options="emails"
+                                    optionLabel="email"
+                                    optionValue="email"
+                                    placeholder="Select an Email"
+                                    :loading="loading" />
+                                <label for="email-select">Select User Email</label>
+                            </IftaLabel>
+                        </div>
                         <Button type="submit" severity="secondary" label="Update" />
+                        <div v-if="selectedEmail" class="mt-3">
+                            <p>Selected email: {{ selectedEmail }}</p>
+                        </div>
                     </Form>
                 </SplitterPanel>
                 <SplitterPanel class="flex items-center justify-center" :size="30"> Panel 1.2 </SplitterPanel>
