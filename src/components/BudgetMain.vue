@@ -9,11 +9,12 @@ import InputText from 'primevue/inputtext';
 import InputNumber from 'primevue/inputnumber';
 import DatePicker from 'primevue/datepicker';
 import AutoComplete from 'primevue/autocomplete';
-import Dropdown from 'primevue/dropdown';
+import Select from 'primevue/select';
 import Button from "primevue/button";
 import Chart from 'primevue/chart';
 import { useToast } from 'primevue/usetoast';
 import Toast from 'primevue/toast';
+import { Message } from 'primevue';
 
 const toast = useToast();
 
@@ -54,7 +55,7 @@ const fetchUsers = async () => {
     try {
         // documentation: https://fakerapi.it/
         const response = await axios.get('https://fakerapi.it/api/v2/users?_quantity=10'); 
-        // Extract email data and map to format expected by PrimeVue Dropdown
+        // Extract email data and map to format expected by PrimeVue Select
         emails.value = response.data.data.map(user => ({
             email: user.email,
             id: user.id
@@ -207,8 +208,6 @@ const submitForm = async () => {
                 <SplitterPanel class="flex items-center justify-center" :size="50" :minSize="10">
                     <Form 
                         v-slot="$form" 
-                        :resolver="resolver" 
-                        :initialValues="initialValues" 
                         @submit="submitForm" 
                         class="flex flex-col gap-4 w-full sm:w-56">
                         <div class="flex flex-col gap-1">
@@ -247,7 +246,7 @@ const submitForm = async () => {
                         </div>
                         <div class="flex flex-col gap-1">
                             <IftaLabel>
-                                <Dropdown 
+                                <Select 
                                     id="email-select" 
                                     v-model="selectedEmail"
                                     :options="emails"
