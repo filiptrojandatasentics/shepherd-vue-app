@@ -37,34 +37,47 @@ const project = ref({
         list: [
             {
                 name: "filip.trojan",
-                fte: 0.3,
                 rate: 900,
+                fte: 0.3,
                 work: 20
             },
             {
                 name: 'robin.siroky',
-                fte: 0.8,
                 rate: 800,
+                fte: 0.8,
                 work: 80
-            }
+            },
         ],
         selected_person: null,
         person: {
-            name: null,
-            fte: null,
-            rate: null,
-            work: null
+            name: "",
+            rate: 800,
+            fte: 0.5,
+            work: 0,
         }
     }
 });
 
 onMounted(() => {
+    // Initialize person with default values if needed
+    resetPersonForm();
 });
 
+// Function to reset the form after submission
+const resetPersonForm = () => {
+    project.value.people.person = {
+        name: "",
+        rate: 800,
+        fte: 0.5,
+        work: 0
+    };
+};
+
 const initialValues = reactive({
-    name: '',
-    fte: 0,
-    work: 0,
+    name: 'jara',
+    rate: 800,
+    fte: 0.6,
+    work: 10,
 });
 
 const resolver = ({ values }) => {
@@ -90,11 +103,25 @@ const resolver = ({ values }) => {
 
 const onFormSubmit = ({ valid }) => {
     if (valid) {
+        // Create a new object with the current values (deep copy)
+        const newPerson = {
+            name: project.value.people.person.name,
+            rate: project.value.people.person.rate,
+            fte: project.value.people.person.fte,
+            work: project.value.people.person.work
+        };
+        
+        // Add the new person to the list
+        project.value.people.list.push(newPerson);
+        
         toast.add({
             severity: 'success',
-            summary: 'Form is submitted.',
+            summary: 'Person added to project',
             life: 3000
         });
+        
+        // Reset the form for the next entry
+        resetPersonForm();
     }
 };
 </script>
@@ -135,27 +162,27 @@ const onFormSubmit = ({ valid }) => {
             <Form v-slot="$form" :initialValues :resolver @submit="onFormSubmit" class="flex flex-col gap-4 w-full sm:w-56">
                 <div class="flex flex-col gap-1">
                     <IftaLabel>
-                        <InputText name="name" type="text" placeholder="name" fluid id="person-name" />
+                        <InputText v-model="project.people.person.name" name="name" type="text" placeholder="name" fluid id="person-name" />
                         <label for="person-name">name</label>
                     </IftaLabel>
                     <Message v-if="$form.name?.invalid" severity="error" size="small" variant="simple">{{ $form.name.error?.message }}</Message>
                 </div>
                 <div class="flex flex-col gap-1">
                     <IftaLabel>
-                        <InputNumber name="rate" placeholder="rate" fluid id="person-rate" />
+                        <InputNumber v-model="project.people.person.rate" name="rate" placeholder="rate" fluid id="person-rate" />
                         <label for="person-rate">rate in czk per hour</label>
                     </IftaLabel>
                 </div>
                 <div class="flex flex-col gap-1">
                     <IftaLabel>
-                        <InputNumber name="fte" placeholder="fte" fluid id="person-fte" />
+                        <InputNumber v-model="project.people.person.fte" name="fte" placeholder="fte" fluid id="person-fte" :minFractionDigits="1" :maxFractionDigits="3" />
                         <label for="person-fte">full time equivalent</label>
                     </IftaLabel>
                     <Message v-if="$form.fte?.invalid" severity="error" size="small" variant="simple">{{ $form.fte.error?.message }}</Message>
                 </div>
                 <div class="flex flex-col gap-1">
                     <IftaLabel>
-                        <InputNumber name="work" placeholder="work" fluid id="person-work" />
+                        <InputNumber v-model="project.people.person.work" name="work" placeholder="work" fluid id="person-work" />
                         <label for="person-work">work</label>
                     </IftaLabel>
                     <Message v-if="$form.work?.invalid" severity="error" size="small" variant="simple">{{ $form.work.error?.message }}</Message>
