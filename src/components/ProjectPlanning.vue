@@ -23,12 +23,13 @@ const users = [
     {name:'ondrej.pleticha@datasentics.com', rate: 800},
 ];
 
-const default_person = {
-    name: "jara",
+// Create a fresh new default object each time
+const createDefaultPerson = () => ({
+    name: "",
     rate: 800,
     fte: 0.5,
     work: 10
-};
+});
 
 const project = ref({
     config: {
@@ -55,18 +56,18 @@ const project = ref({
             },
         ],
         selected_person: null,
-        person: default_person
+        person: createDefaultPerson()
     }
 });
 
 onMounted(() => {
-    // Initialize person with default values if needed
+    // Initialize person with default values
     resetPersonForm();
 });
 
 // Function to reset the form after submission
 const resetPersonForm = () => {
-    project.value.people.person = default_person;
+    project.value.people.person = createDefaultPerson();
 };
 
 const resolver = ({ values }) => {
@@ -85,47 +86,76 @@ const resolver = ({ values }) => {
     }
 
     return {
-        values, // (Optional) Used to pass current form values to submit event.
+        values: project.value.people.person, // Pass current form values
         errors
     };
 };
 
-const onFormSubmit = ({ valid }) => {
-    if (valid) {
+const onFormSubmit = (e, action) => {
+    const valid = !Object.keys(resolver({}).errors).length;
+    
+    if (action === 'save') {
+        if (valid) {
+            const person_name = project.value.people.person.name;
+            const ind = project.value.people.list.findIndex(
+                person => person.name.toLowerCase() === person_name.toLowerCase()
+            );
+
+            // Create a new object with the current values (deep copy)
+            const newPerson = {
+                name: project.value.people.person.name,
+                rate: project.value.people.person.rate,
+                fte: project.value.people.person.fte,
+                work: project.value.people.person.work
+            };
+                
+            if (ind >= 0) {
+                project.value.people.list[ind] = newPerson;
+                
+                toast.add({
+                    severity: 'success',
+                    summary: `Person ${person_name} updated`,
+                    life: 3000
+                });
+            } else {
+                // Add the new person to the list
+                project.value.people.list.push(newPerson);
+                
+                toast.add({
+                    severity: 'success',
+                    summary: `Person ${person_name} added to project`,
+                    life: 3000
+                });
+            }
+            
+            // Reset the form for the next entry
+            resetPersonForm();
+        }
+    } else if (action === 'delete') {
         const person_name = project.value.people.person.name;
         const ind = project.value.people.list.findIndex(
-            person => person.name.toLowerCase() == person_name
+            person => person.name.toLowerCase() === person_name.toLowerCase()
         );
-
-        // Create a new object with the current values (deep copy)
-        const newPerson = {
-            name: project.value.people.person.name,
-            rate: project.value.people.person.rate,
-            fte: project.value.people.person.fte,
-            work: project.value.people.person.work
-        };
-            
+        
         if (ind >= 0) {
-            project.value.people.list[ind] = newPerson;
+            // Remove the person from the list
+            project.value.people.list.splice(ind, 1);
             
             toast.add({
                 severity: 'success',
-                summary: `Person ${person_name} updated`,
+                summary: `Person ${person_name} deleted`,
                 life: 3000
             });
-        } else {
-            // Add the new person to the list
-            project.value.people.list.push(newPerson);
             
+            // Reset the form after deletion
+            resetPersonForm();
+        } else {
             toast.add({
-                severity: 'success',
-                summary: `Person ${person_name} added to project`,
+                severity: 'error',
+                summary: `Person ${person_name} not found`,
                 life: 3000
             });
         }
-        
-        // Reset the form for the next entry
-        resetPersonForm();
     }
 };
 </script>
@@ -163,7 +193,7 @@ const onFormSubmit = ({ valid }) => {
         </div>
         <div class="card flex justify-center">
             <Toast />
-            <Form v-slot="$form" :resolver @submit="onFormSubmit" class="flex flex-col gap-4 w-full sm:w-56">
+            <Form v-slot="$form" :resolver class="flex flex-col gap-4 w-full sm:w-56">
                 <div class="flex flex-col gap-1">
                     <IftaLabel>
                         <InputText v-model="project.people.person.name" name="name" type="text" placeholder="name" fluid id="person-name" />
@@ -191,7 +221,10 @@ const onFormSubmit = ({ valid }) => {
                     </IftaLabel>
                     <Message v-if="$form.work?.invalid" severity="error" size="small" variant="simple">{{ $form.work.error?.message }}</Message>
                 </div>
-                <Button type="submit" severity="secondary" label="Add/Update" />
+                <div class="button-group flex gap-2">
+                    <Button type="button" @click="e => onFormSubmit(e, 'save')" severity="secondary" label="Add/Update" />
+                    <Button type="button" @click="e => onFormSubmit(e, 'delete')" severity="danger" label="Delete" />
+                </div>
             </Form>
         </div>
     </Fieldset>
