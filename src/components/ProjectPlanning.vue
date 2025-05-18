@@ -6,7 +6,6 @@ import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import IftaLabel from 'primevue/iftalabel';
 import { Form } from '@primevue/forms';
-import { reactive } from 'vue';
 import { useToast } from 'primevue/usetoast';
 import { Toast } from "primevue";
 import { InputText } from "primevue";
@@ -28,7 +27,7 @@ const default_person = {
     name: "jara",
     rate: 800,
     fte: 0.5,
-    work: 0
+    work: 10
 };
 
 const project = ref({
@@ -93,6 +92,11 @@ const resolver = ({ values }) => {
 
 const onFormSubmit = ({ valid }) => {
     if (valid) {
+        const person_name = project.value.people.person.name;
+        const ind = project.value.people.list.findIndex(
+            person => person.name.toLowerCase() == person_name
+        );
+
         // Create a new object with the current values (deep copy)
         const newPerson = {
             name: project.value.people.person.name,
@@ -100,15 +104,25 @@ const onFormSubmit = ({ valid }) => {
             fte: project.value.people.person.fte,
             work: project.value.people.person.work
         };
-        
-        // Add the new person to the list
-        project.value.people.list.push(newPerson);
-        
-        toast.add({
-            severity: 'success',
-            summary: 'Person added to project',
-            life: 3000
-        });
+            
+        if (ind >= 0) {
+            project.value.people.list[ind] = newPerson;
+            
+            toast.add({
+                severity: 'success',
+                summary: `Person ${person_name} updated`,
+                life: 3000
+            });
+        } else {
+            // Add the new person to the list
+            project.value.people.list.push(newPerson);
+            
+            toast.add({
+                severity: 'success',
+                summary: `Person ${person_name} added to project`,
+                life: 3000
+            });
+        }
         
         // Reset the form for the next entry
         resetPersonForm();
