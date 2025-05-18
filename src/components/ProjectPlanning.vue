@@ -16,12 +16,12 @@ import { Button } from "primevue";
 const toast = useToast();
 
 const users = [
-    'jiri.jelinek@datasentics.com',
-    'filip.trojan@datasentics.com',
-    'david.vopelka@datasentics.com',
-    'tomas.bouma@datasentics.com',
-    'ondrej.kral@datasentics.com',
-    'ondrej.pleticha@datasentics.com',
+    {name:'jiri.jelinek@datasentics.com', rate: 800},
+    {name:'filip.trojan@datasentics.com', rate: 900},
+    {name:'david.vopelka@datasentics.com', rate: 1000},
+    {name:'tomas.bouma@datasentics.com', rate: 800},
+    {name:'ondrej.kral@datasentics.com', rate: 800},
+    {name:'ondrej.pleticha@datasentics.com', rate: 800},
 ];
 
 const project = ref({
@@ -62,14 +62,24 @@ onMounted(() => {
 });
 
 const initialValues = reactive({
-    username: 'filip'
+    name: '',
+    fte: 0,
+    work: 0,
 });
 
 const resolver = ({ values }) => {
     const errors = {};
 
-    if (!values.username) {
-        errors.username = [{ message: 'Username is required.' }];
+    if (!values.name) {
+        errors.name = [{ message: 'name is required.' }];
+    }
+
+    if (values.fte == 0) {
+        errors.fte = [{ message: 'fte must be greater than zero' }];
+    }
+
+    if (values.work == 0) {
+        errors.work = [{ message: 'work must be greater than zero' }];
     }
 
     return {
@@ -91,17 +101,19 @@ const onFormSubmit = ({ valid }) => {
 
 <template>
     <Fieldset legend="total">
-        <div class="flex flex-col gap-1">
-            <IftaLabel>
-                <InputNumber v-model="project.total.work" showButtons :step="project.config.work_step" id="project-total-work" />
-                <label for="project-total-work">project total work</label>
-            </IftaLabel>
-        </div>
-        <div class="flex flex-col gap-1">
-            <IftaLabel>
-                <InputNumber v-model="project.config.work_step" id="config-work-step" />
-                <label for="config-work-step">work step</label>
-            </IftaLabel>
+        <div class="card flex justify-center">
+            <div class="flex flex-col gap-1">
+                <IftaLabel>
+                    <InputNumber v-model="project.total.work" showButtons :step="project.config.work_step" id="project-total-work" />
+                    <label for="project-total-work">project total work</label>
+                </IftaLabel>
+            </div>
+            <div class="flex flex-col gap-1">
+                <IftaLabel>
+                    <InputNumber v-model="project.config.work_step" id="config-work-step" />
+                    <label for="config-work-step">work step</label>
+                </IftaLabel>
+            </div>
         </div>
     </Fieldset>
     <Fieldset legend="people">
@@ -113,8 +125,8 @@ const onFormSubmit = ({ valid }) => {
                 v-model:selection="project.people.selected_person"
                 tableStyle="min-width: 50rem">
                 <Column field="name" header="name"></Column>
-                <Column field="fte" header="fte"></Column>
                 <Column field="rate" header="rate"></Column>
+                <Column field="fte" header="fte"></Column>
                 <Column field="work" header="work"></Column>
             </DataTable>
         </div>
@@ -122,10 +134,33 @@ const onFormSubmit = ({ valid }) => {
             <Toast />
             <Form v-slot="$form" :initialValues :resolver @submit="onFormSubmit" class="flex flex-col gap-4 w-full sm:w-56">
                 <div class="flex flex-col gap-1">
-                    <InputText name="username" type="text" placeholder="Username" fluid />
-                    <Message v-if="$form.username?.invalid" severity="error" size="small" variant="simple">{{ $form.username.error?.message }}</Message>
+                    <IftaLabel>
+                        <InputText name="name" type="text" placeholder="name" fluid id="person-name" />
+                        <label for="person-name">name</label>
+                    </IftaLabel>
+                    <Message v-if="$form.name?.invalid" severity="error" size="small" variant="simple">{{ $form.name.error?.message }}</Message>
                 </div>
-                <Button type="submit" severity="secondary" label="Submit" />
+                <div class="flex flex-col gap-1">
+                    <IftaLabel>
+                        <InputNumber name="rate" placeholder="rate" fluid id="person-rate" />
+                        <label for="person-rate">rate in czk per hour</label>
+                    </IftaLabel>
+                </div>
+                <div class="flex flex-col gap-1">
+                    <IftaLabel>
+                        <InputNumber name="fte" placeholder="fte" fluid id="person-fte" />
+                        <label for="person-fte">full time equivalent</label>
+                    </IftaLabel>
+                    <Message v-if="$form.fte?.invalid" severity="error" size="small" variant="simple">{{ $form.fte.error?.message }}</Message>
+                </div>
+                <div class="flex flex-col gap-1">
+                    <IftaLabel>
+                        <InputNumber name="work" placeholder="work" fluid id="person-work" />
+                        <label for="person-work">work</label>
+                    </IftaLabel>
+                    <Message v-if="$form.work?.invalid" severity="error" size="small" variant="simple">{{ $form.work.error?.message }}</Message>
+                </div>
+                <Button type="submit" severity="secondary" label="Add" />
             </Form>
         </div>
     </Fieldset>
