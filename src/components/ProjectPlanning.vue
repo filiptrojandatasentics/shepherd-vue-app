@@ -24,6 +24,13 @@ const users = [
     {name:'ondrej.pleticha@datasentics.com', rate: 800},
 ];
 
+const default_person = {
+    name: "jara",
+    rate: 800,
+    fte: 0.5,
+    work: 0
+};
+
 const project = ref({
     config: {
         work_step: 1,
@@ -49,12 +56,7 @@ const project = ref({
             },
         ],
         selected_person: null,
-        person: {
-            name: "",
-            rate: 800,
-            fte: 0.5,
-            work: 0,
-        }
+        person: default_person
     }
 });
 
@@ -65,33 +67,21 @@ onMounted(() => {
 
 // Function to reset the form after submission
 const resetPersonForm = () => {
-    project.value.people.person = {
-        name: "",
-        rate: 800,
-        fte: 0.5,
-        work: 0
-    };
+    project.value.people.person = default_person;
 };
-
-const initialValues = reactive({
-    name: 'jara',
-    rate: 800,
-    fte: 0.6,
-    work: 10,
-});
 
 const resolver = ({ values }) => {
     const errors = {};
 
-    if (!values.name) {
+    if (!project.value.people.person.name) {
         errors.name = [{ message: 'name is required.' }];
     }
 
-    if (values.fte == 0) {
+    if (project.value.people.person.fte == 0) {
         errors.fte = [{ message: 'fte must be greater than zero' }];
     }
 
-    if (values.work == 0) {
+    if (project.value.people.person.work == 0) {
         errors.work = [{ message: 'work must be greater than zero' }];
     }
 
@@ -159,7 +149,7 @@ const onFormSubmit = ({ valid }) => {
         </div>
         <div class="card flex justify-center">
             <Toast />
-            <Form v-slot="$form" :initialValues :resolver @submit="onFormSubmit" class="flex flex-col gap-4 w-full sm:w-56">
+            <Form v-slot="$form" :resolver @submit="onFormSubmit" class="flex flex-col gap-4 w-full sm:w-56">
                 <div class="flex flex-col gap-1">
                     <IftaLabel>
                         <InputText v-model="project.people.person.name" name="name" type="text" placeholder="name" fluid id="person-name" />
@@ -187,7 +177,7 @@ const onFormSubmit = ({ valid }) => {
                     </IftaLabel>
                     <Message v-if="$form.work?.invalid" severity="error" size="small" variant="simple">{{ $form.work.error?.message }}</Message>
                 </div>
-                <Button type="submit" severity="secondary" label="Add" />
+                <Button type="submit" severity="secondary" label="Add/Update" />
             </Form>
         </div>
     </Fieldset>
