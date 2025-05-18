@@ -4,6 +4,7 @@ import Fieldset from 'primevue/fieldset';
 import { InputNumber } from "primevue";
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
+import IftaLabel from 'primevue/iftalabel';
 import { Form } from '@primevue/forms';
 import { reactive } from 'vue';
 import { useToast } from 'primevue/usetoast';
@@ -90,8 +91,18 @@ const onFormSubmit = ({ valid }) => {
 
 <template>
     <Fieldset legend="total">
-            <InputNumber v-model="project.total.work" showButtons :step="project.config.work_step" />
-            <InputNumber v-model="project.config.work_step" />
+        <div class="flex flex-col gap-1">
+            <IftaLabel>
+                <InputNumber v-model="project.total.work" showButtons :step="project.config.work_step" id="project-total-work" />
+                <label for="project-total-work">project total work</label>
+            </IftaLabel>
+        </div>
+        <div class="flex flex-col gap-1">
+            <IftaLabel>
+                <InputNumber v-model="project.config.work_step" id="config-work-step" />
+                <label for="config-work-step">work step</label>
+            </IftaLabel>
+        </div>
     </Fieldset>
     <Fieldset legend="people">
         <div class="card">
