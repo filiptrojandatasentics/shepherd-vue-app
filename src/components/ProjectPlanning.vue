@@ -63,6 +63,23 @@ const project = ref({
     }
 });
 
+// Watch for changes in selected_person and update form fields accordingly
+const onRowSelect = (event) => {
+    // Clone the selected person data to the form
+    project.value.people.person = {
+        name: event.data.name,
+        rate: event.data.rate,
+        fte: event.data.fte,
+        work: event.data.work
+    };
+};
+
+// Handle row deselection
+const onRowUnselect = () => {
+    // Reset form to default values when a row is unselected
+    resetPersonForm();
+};
+
 onMounted(() => {
     // Initialize person with default values
     resetPersonForm();
@@ -204,6 +221,8 @@ const onFormSubmit = (e, action) => {
                 selectionMode="single"
                 dataKey="name"
                 v-model:selection="project.people.selected_person"
+                @row-select="onRowSelect"
+                @row-unselect="onRowUnselect"
                 tableStyle="min-width: 50rem">
                 <Column field="name" header="name"></Column>
                 <Column field="rate" header="rate"></Column>
