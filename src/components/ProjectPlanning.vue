@@ -22,6 +22,9 @@ const users = [
     {name:'ondrej.kral@datasentics.com', rate: 800},
     {name:'ondrej.pleticha@datasentics.com', rate: 800},
     {name:'dome.lorinczy@datasentics.com', rate: 800},
+    {name:'robin.siroky@datasentics.com', rate: 800},
+    {name:'marketa.krenkova@datasentics.com', rate: 800},
+    {name:'kyuu', rate: 600},
 ];
 
 // For AutoComplete suggestions
