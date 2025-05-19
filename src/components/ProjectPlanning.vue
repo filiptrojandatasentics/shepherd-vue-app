@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import Fieldset from 'primevue/fieldset';
 import { InputNumber } from "primevue";
 import DataTable from 'primevue/datatable';
@@ -21,6 +21,7 @@ const users = [
     {name:'tomas.bouma@datasentics.com', rate: 800},
     {name:'ondrej.kral@datasentics.com', rate: 800},
     {name:'ondrej.pleticha@datasentics.com', rate: 800},
+    {name:'dome.lorinczy@datasentics.com', rate: 800},
 ];
 
 // For AutoComplete suggestions
@@ -61,6 +62,22 @@ const project = ref({
         selected_person: null,
         person: createDefaultPerson()
     }
+});
+
+const peopleTotalWorkFunction = (people_list) => {
+    return people_list.reduce((sum, person) => sum + person.work, 0);
+}
+
+const peopleTotalWork = computed(() => {
+    return peopleTotalWorkFunction(project.value.people.list);
+});
+
+const peopleWorkDiff = computed(() => {
+    return peopleTotalWork.value - project.value.total.work;
+});
+
+const getDiffClass = computed(() => {
+  return peopleWorkDiff.value === 0 ? 'cell-zero' : 'cell-nonzero';
 });
 
 // Watch for changes in selected_person and update form fields accordingly
@@ -216,6 +233,22 @@ const onFormSubmit = (e, action) => {
     </Fieldset>
     <Fieldset legend="people">
         <div class="card">
+        <table>
+            <tr>
+                <th>quantity</th>
+                <th>required</th>
+                <th>actual</th>
+                <th>difference</th>
+            </tr>
+            <tr>
+                <td>work</td>
+                <td>{{ project.total.work }}</td>
+                <td>{{ peopleTotalWork }}</td>
+                <td :class="getDiffClass">{{ peopleWorkDiff }}</td>
+            </tr>
+        </table>
+        </div>
+        <div class="card">
             <DataTable 
                 :value="project.people.list" 
                 selectionMode="single"
@@ -251,27 +284,27 @@ const onFormSubmit = (e, action) => {
                 </div>
                 <div class="flex flex-col gap-1">
                     <IftaLabel>
-                        <InputNumber v-model="project.people.person.rate" name="rate" placeholder="rate" fluid id="person-rate" />
+                        <InputNumber v-model="project.people.person.rate" name="rate" placeholder="rate" fluid id="person-rate" showButtons :step="10" />
                         <label for="person-rate">rate in czk per hour</label>
                     </IftaLabel>
                 </div>
                 <div class="flex flex-col gap-1">
                     <IftaLabel>
-                        <InputNumber v-model="project.people.person.fte" name="fte" placeholder="fte" fluid id="person-fte" :minFractionDigits="1" :maxFractionDigits="3" />
+                        <InputNumber v-model="project.people.person.fte" name="fte" placeholder="fte" fluid id="person-fte" :minFractionDigits="1" :maxFractionDigits="3" showButtons :step="0.1" />
                         <label for="person-fte">full time equivalent</label>
                     </IftaLabel>
                     <Message v-if="$form.fte?.invalid" severity="error" size="small" variant="simple">{{ $form.fte.error?.message }}</Message>
                 </div>
                 <div class="flex flex-col gap-1">
                     <IftaLabel>
-                        <InputNumber v-model="project.people.person.work" name="work" placeholder="work" fluid id="person-work" />
+                        <InputNumber v-model="project.people.person.work" name="work" placeholder="work" fluid id="person-work" showButtons :step="1" />
                         <label for="person-work">work</label>
                     </IftaLabel>
                     <Message v-if="$form.work?.invalid" severity="error" size="small" variant="simple">{{ $form.work.error?.message }}</Message>
                 </div>
                 <div class="button-group flex gap-2">
-                    <Button type="button" @click="e => onFormSubmit(e, 'save')" severity="secondary" label="Add/Update" />
-                    <Button type="button" @click="e => onFormSubmit(e, 'delete')" severity="danger" label="Delete" />
+                    <Button type="button" @click="e => onFormSubmit(e, 'save')" severity="primary" label="Add/Update" />
+                    <Button type="button" @click="e => onFormSubmit(e, 'delete')" severity="secondary" label="Delete" />
                 </div>
             </Form>
         </div>
@@ -295,3 +328,13 @@ const onFormSubmit = (e, action) => {
         </p>
     </Fieldset>
 </template>
+
+<style>
+.cell-zero {
+  background-color: #d1fae5; /* light green */
+}
+
+.cell-nonzero {
+  background-color: #ffedd5; /* light orange */
+}
+</style>
