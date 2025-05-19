@@ -41,24 +41,11 @@ const project = ref({
         work_unit: "md",
     },
     total: {
-        work: 100,
+        work: 0,
         time: 5*30*20,
     },
     people: {
-        list: [
-            {
-                name: "filip.trojan",
-                rate: 900,
-                fte: 0.3,
-                work: 20
-            },
-            {
-                name: 'robin.siroky',
-                rate: 800,
-                fte: 0.8,
-                work: 80
-            },
-        ],
+        list: [],
         selected_person: null,
         person: createDefaultPerson()
     }
