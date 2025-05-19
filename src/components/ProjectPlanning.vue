@@ -8,9 +8,9 @@ import IftaLabel from 'primevue/iftalabel';
 import { Form } from '@primevue/forms';
 import { useToast } from 'primevue/usetoast';
 import { Toast } from "primevue";
-import { InputText } from "primevue";
 import { Message } from "primevue";
 import { Button } from "primevue";
+import { AutoComplete } from "primevue"; // Add AutoComplete import
 
 const toast = useToast();
 
@@ -22,6 +22,9 @@ const users = [
     {name:'ondrej.kral@datasentics.com', rate: 800},
     {name:'ondrej.pleticha@datasentics.com', rate: 800},
 ];
+
+// For AutoComplete suggestions
+const filteredUsers = ref([]);
 
 // Create a fresh new default object each time
 const createDefaultPerson = () => ({
@@ -89,6 +92,23 @@ const resolver = ({ values }) => {
         values: project.value.people.person, // Pass current form values
         errors
     };
+};
+
+// Function to search users for AutoComplete
+const searchUsers = (event) => {
+    let filtered = [];
+    let query = event.query.toLowerCase();
+    
+    filtered = users.filter(user => user.name.toLowerCase().includes(query));
+    filteredUsers.value = filtered.map(u => u.name);
+};
+
+// Function to handle user selection and update rate
+const onUserSelect = (event) => {
+    const selectedUser = users.find(user => user.name === event.value);
+    if (selectedUser) {
+        project.value.people.person.rate = selectedUser.rate;
+    }
 };
 
 const onFormSubmit = (e, action) => {
@@ -196,7 +216,16 @@ const onFormSubmit = (e, action) => {
             <Form v-slot="$form" :resolver class="flex flex-col gap-4 w-full sm:w-56">
                 <div class="flex flex-col gap-1">
                     <IftaLabel>
-                        <InputText v-model="project.people.person.name" name="name" type="text" placeholder="name" fluid id="person-name" />
+                        <AutoComplete 
+                            v-model="project.people.person.name" 
+                            name="name" 
+                            :suggestions="filteredUsers" 
+                            @complete="searchUsers"
+                            @item-select="onUserSelect"
+                            field="name"
+                            placeholder="name" 
+                            fluid 
+                            id="person-name" />
                         <label for="person-name">name</label>
                     </IftaLabel>
                     <Message v-if="$form.name?.invalid" severity="error" size="small" variant="simple">{{ $form.name.error?.message }}</Message>
