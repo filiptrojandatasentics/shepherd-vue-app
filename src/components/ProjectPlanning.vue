@@ -2,7 +2,8 @@
 import { ref, onMounted, computed } from "vue";
 import Fieldset from 'primevue/fieldset';
 import { InputNumber } from "primevue";
-import PeopleFieldset from './PeopleFieldset.vue'; // Import the new component
+import PeopleFieldset from './PeopleFieldset.vue';
+import ProjectPlanningTime from "./ProjectPlanningTime.vue";
 
 const users = [
     {name:'jiri.jelinek@datasentics.com', rate: 800},
@@ -28,6 +29,9 @@ const project = ref({
     },
     people: {
         list: [],
+    },
+    time: {
+        list: []
     }
 });
 
@@ -35,6 +39,10 @@ const project = ref({
 const updatePeopleList = (newList) => {
     project.value.people.list = newList;
 };
+
+const updateProjectPlan = (newList) => {
+    project.value.time.list = newList;
+}
 
 onMounted(() => {
     // Any initialization if needed
@@ -66,12 +74,13 @@ onMounted(() => {
         @update:peopleList="updatePeopleList"
     />
     
-    <Fieldset legend="time">
-        <p class="m-0">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-            Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-        </p>
-    </Fieldset>
+    <ProjectPlanningTime
+        :totalWork="project.total.work"
+        :peopleList="project.people.list"
+        :projectPlan="project.time.list"
+        @update:projectPlan="updateProjectPlan"
+    />
+
     <Fieldset legend="period by people">
         <p class="m-0">
             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
